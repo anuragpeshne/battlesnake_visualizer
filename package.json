@@ -1,0 +1,28 @@
+{
+  "name": "battlesnake_visualizer",
+  "version": "1.0.0",
+  "description": "Visualizer for debugging",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anuragpeshne/battlesnake_visualizer.git"
+  },
+  "keywords": [
+    "battlesnake",
+    "debugger"
+  ],
+  "author": "Anurag Peshne",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/anuragpeshne/battlesnake_visualizer/issues"
+  },
+  "homepage": "https://github.com/anuragpeshne/battlesnake_visualizer#readme",
+  "dependencies": {
+    "connect": "^3.7.0",
+    "serve-static": "^1.15.0",
+    "ws": "^8.7.0"
+  }
+}

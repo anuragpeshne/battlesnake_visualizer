@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Distributed Systems Visualizer</title>
+<script type="text/javascript">
+ const SOCKET_PORT = 8081
+ window.WebSocket = window.WebSocket || window.MozWebSocket;
+
+ var connection = new WebSocket('ws://127.0.0.1:' + SOCKET_PORT);
+
+ connection.onopen = function () {
+     // connection is opened and ready to use
+     console.log("connected");
+     document.getElementById("status-bar").innerHTML = "Connected";
+ };
+
+ connection.onerror = function (error) {
+     // an error occurred when sending/receiving data
+     console.log("Error in connection:\n" + error);
+     document.getElementById("status-bar").innerHTML = "Error in connection";
+ };
+
+ var cell_size = 15;
+ function draw_grid(height, width) {
+     var num_nodes = height * width;
+     var len = Math.ceil(Math.sqrt(num_nodes));
+     var container = document.getElementById("container");
+     container.innerHTML = '';
+     cell_size = Math.min((window.innerHeight - 200) / (num_nodes / len), cell_size);
+     container.setAttribute("style", "width:" + ((cell_size + 4) * len) + "px");
+
+     for (i = 0; i < height; i++) {
+         var row = document.createElement("div");
+         row.className = "row";
+         for (j = 0; j < width; j++) {
+             var cell = document.createElement("div");
+             cell.className = "cell";
+             cell.id = j + "-" + (height - i - 1);
+             cell.setAttribute(
+                 "style",
+                 "width:" + cell_size + "px; " +
+                 "height:" + cell_size + "px"
+             );
+             row.appendChild(cell);
+         }
+         container.appendChild(row);
+     }
+ }
+ var move_number = 0;
+ connection.onmessage = function (message) {
+     move = JSON.parse(message.data);
+     console.log(move);
+     move_number += 1;
+     document.getElementById("move").innerHTML = move_number;
+     var grid_height = move["board"]["height"];
+     var grid_width = move["board"]["width"];
+     draw_grid(grid_height, grid_width);
+
+     var snakes = move["board"]["snakes"];
+     snakes = snakes.map(function (snake) { return snake["body"]; });
+     for (i = 0; i < snakes.length; i++) {
+        snake = snakes[i];
+        for (snakeBodyIdx = 0; snakeBodyIdx < snake.length; snakeBodyIdx++) {
+           var cellData = snake[snakeBodyIdx];
+           var cellIdx = cellData['x'] + "-" + cellData['y'];
+           cell = document.getElementById(cellIdx);
+           cell.className += " infected";
+        }
+     }
+ };
+</script>
+<style>
+ #status-bar, #move, #container {
+     margin: 0 auto;
+     padding: 10px;
+     text-align: center;
+     max-width: 1000px;
+     font-family: "Lucida Console", Monaco, monospace;
+     color: #000;
+ }
+
+ #inactive-count {
+     color: #FFCF79;
+ }
+
+ #infected-count {
+     color:  #92CD00;
+ }
+
+ .cell {
+     float: left;
+     width: 15px;
+     height: 15px;
+     border: solid 1px #ccc;
+     border-radius: 8px;
+ }
+
+ .row {
+     float: left;
+     width: 100%;
+ }
+
+ .infected {
+     background-color: #92CD00;
+     animation:pulse 0.2s 0s alternate;
+ }
+
+ /*
+ .inactive {
+     background-color: #FFCF79;
+     animation:pulse 0.2s 0s alternate;
+ }
+
+ @keyframes pulse {
+     from { box-shadow:0px 0px 10px 3px #E5E4D7; }
+     to { box-shadow:0px 0px 20px 5px #E5E4D7; }
+ }
+ */
+</style>
+</head>
+<body>
+  <div id="status-bar"></div>
+  <div id="move"></div>
+  <div id="container"></div>
+</body>
+</html>
